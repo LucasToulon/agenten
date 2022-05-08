@@ -27,32 +27,15 @@ public class CustomerAgent extends Agent {
 
 	}
 
-	public boolean vote(int[] contract, int[] proposal) {
-		int timeContract = evaluate(contract);
-		int timeProposal = evaluate(proposal);
-		if (timeProposal < timeContract)
-			return true;
-		else
-			return false;
-	}
-
 	public boolean voteWithAcceptance(int[] contract, int[] proposal, double acceptanceRate) {
 		int timeContract = evaluate(contract);
 		int timeProposal = evaluate(proposal);
-		if (timeProposal < timeContract + acceptanceRate)
+		if (timeProposal < timeContract * acceptanceRate)
 			return true;
 		else
 			return false;
 	}
 
-	public boolean voteMean(List<int[]> contracts, List<int[]> proposals) {
-		int costContract = evaluateMean(contracts);
-		int costProposal = evaluateMean(proposals);
-		if (costProposal < costContract)
-			return true;
-		else
-			return false;
-	}
 
 	public int getContractSize() {
 		return timeMatrix.length;
@@ -109,12 +92,5 @@ public class CustomerAgent extends Agent {
 		return result;
 	}
 
-	private int evaluateMean(List<int[]> contracts){
-		int sum = 0;
-		for(int[] contract : contracts){
-			sum += evaluate(contract);
-		}
-		return (Math.round(sum/contracts.size()));
-	}
 
 }

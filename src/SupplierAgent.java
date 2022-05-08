@@ -24,29 +24,12 @@ public class SupplierAgent extends Agent {
 	public boolean voteWithAcceptance(int[] contract, int[] proposal, double acceptanceRate) {
 		int costContract = evaluate(contract);
 		int costProposal = evaluate(proposal);
-		if (costProposal < costContract + acceptanceRate)
+		if (costProposal < costContract * acceptanceRate)
 			return true;
 		else
 			return false;
 	}
 
-	public boolean vote(int[] contract, int[] proposal) {
-		int costContract = evaluate(contract);
-		int costProposal = evaluate(proposal);
-		if (costProposal < costContract)
-			return true;
-		else
-			return false;
-	}
-
-	public boolean voteMean(List<int[]> contracts, List<int[]> proposals) {
-		int costContract = evaluateMean(contracts);
-		int costProposal = evaluateMean(proposals);
-		if (costProposal < costContract)
-			return true;
-		else
-			return false;
-	}
 
 	public int getContractSize() {
 		return costMatrix.length;
@@ -69,11 +52,4 @@ public class SupplierAgent extends Agent {
 		return result;
 	}
 
-	private int evaluateMean(List<int[]> contracts){
-		int sum = 0;
-		for(int[] contract : contracts){
-			sum += evaluate(contract);
-		}
-		return (Math.round(sum/contracts.size()));
-	}
 }

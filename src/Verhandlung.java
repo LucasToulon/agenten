@@ -22,23 +22,19 @@ import java.util.List;
  * - Alternative Konstruktionsmechanismen für Kontrakte
  * - Ausgleichszahlungen der Agenten (nur möglich, wenn beide Agenten eine monetaere Zielfunktion haben
  *
- *
- *
- * Wie oft sagen die Agenten ja oder nein?
  */
 
 
 public class Verhandlung {	
 
-	final static int MAXROUNDS = 100000;
+	final static int MAXROUNDS = 1600000;
+	final static int MAXSTAGNATION = 5000;
 		public static void main(String[] args) {
-			int[] contract, proposal, zwischenspeicher;
-			List<int[]> contracts;
-			List<int[]> zwischenergebnisse = new ArrayList<int []>();
+			int[] contract, proposal;
 			Agent agA, agB, agC, agD, agE;
 			Mediator med;
-			boolean voteA, voteB, voteC, voteD, voteE, negotiationOk;
-			int round, maxRounds;
+			boolean voteA, voteB, voteC, voteD, voteE;
+			int round;
 
 			try {
 				agA = new SupplierAgent(new File("data/daten3ASupplier_200.txt"));
@@ -46,62 +42,46 @@ public class Verhandlung {
 //				agC = new SupplierAgent(new File("data/daten5ASupplier_200.txt"));
 //				agD = new CustomerAgent(new File("data/daten3BCustomer_200_20.txt"));
 //				agE = new CustomerAgent(new File("data/daten4BCustomer_200_5.txt"));
-//
 
 				med = new Mediator(agA.getContractSize(), agB.getContractSize());
 
 				//Verhandlung initialisieren
-				//contract  = med.initContract();	//Vertrag=Lösung=Jobliste
-				contracts = med.initRandomContracts();    //Vertrag=Lösung=Jobliste
-
+				contract = med.initContract();    //Vertrag=Lösung=Jobliste
 				//Verhandlung starten
 				int a = 0, b = 0;
-				double acceptanceRateBfix = 0.0;
-				double acceptanceRateAfix = 0.0;
-				for(int[] randomContract : contracts){
-					contract = randomContract;
-					double acceptanceRateB = med.calculateNewAcceptanceRate("b", b);
-					double acceptanceRateA = med.calculateNewAcceptanceRate("a", a);
-					a = 0;
-					b = 0;
-					//med.resetAcceptanceRates();
-					for(round=1;round<MAXROUNDS;round++) {					//Mediator
-						proposal = med.constructProposal(contract);			//zweck: Win-win
-						voteA    = agA.voteWithAcceptance(contract, proposal, acceptanceRateA);
-						//voteA    = agA.vote(contract, proposal);   //Autonomie + Private Infos
-						voteB    = agB.voteWithAcceptance(contract, proposal, acceptanceRateB);
-//					voteC    = agC.vote(contract, proposal);            //Autonomie + Private Infos
-//					voteD    = agD.vote(contract, proposal);
-//					voteE    = agE.vote(contract, proposal);            //Autonomie + Private Infos
-//
-//					if(voteA && voteB && voteC && voteD && voteE) {
-						if(voteA && voteB) {
-							contract = proposal;
-							//ausgabe(agA, agB, agC, agD, agE, round, contract);
-						}
-						if(voteA) a++;
-						if(voteB) b++;
+
+				double acceptanceRateB = 1.0;
+				double acceptanceRateA = 1.0;
+				int stagnation = 0;
+				for(round=1;round<MAXROUNDS;round++) {
+					//Construct proposal with single permutation
+					proposal = med.constructProposalDoublePerm(contract);
+					voteA    = agA.voteWithAcceptance(contract, proposal, acceptanceRateA);
+					voteB    = agB.voteWithAcceptance(contract, proposal, acceptanceRateB);
+					if((voteA && voteB)) {
+						contract = proposal;
+						ausgabe(agA, agB, round, contract);
+						a=0;
+						b=0;
+					}else{
+						stagnation++;
 					}
-					System.out.println(contracts.indexOf(randomContract) + " -> " + a + " und " + b + " Annahmen");
-					//Hier ist die innere Schleife fertig
-					ausgabe(agA, agB, contracts.indexOf(randomContract), contract);
-					zwischenergebnisse.add(contract);
-				}
-				//Jetzt die zwischenergebnisse bewerten
-				int[] bestContract = zwischenergebnisse.get(0);
-				for(int[] contractA : zwischenergebnisse){
-					voteA    = agA.vote(bestContract, contractA);            //Autonomie + Private Infos
-					voteB    = agB.vote(bestContract, contractA);
-					if(voteA && voteB) {
-						bestContract = contractA;
+					if(voteA) a++;
+					if(voteB) b++;
+					//If stagnating for a long time, go up with the acceptance rate
+					if(stagnation >= MAXSTAGNATION){
+						acceptanceRateA = med.calculateNewAcceptanceRate("a", a);
+						acceptanceRateB = med.calculateNewAcceptanceRate("b", b);
+						a= 0;
+						b= 0;
 					}
 				}
-				ausgabe(agA, agB, 0, bestContract);
 			}
 			catch(FileNotFoundException e){
 				System.out.println(e.getMessage());
 			}
 		}
+
 
 
 	public static void ausgabe(Agent a1, Agent a2, int i, int[] contract){

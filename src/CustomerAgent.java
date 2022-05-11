@@ -36,6 +36,15 @@ public class CustomerAgent extends Agent {
 			return false;
 	}
 
+	public boolean vote(int[] contract, int[] proposal) {
+		int timeContract = evaluate(contract);
+		int timeProposal = evaluate(proposal);
+		if (timeProposal < timeContract)
+			return true;
+		else
+			return false;
+	}
+
 
 	public int getContractSize() {
 		return timeMatrix.length;

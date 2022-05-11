@@ -46,9 +46,9 @@ public class Mediator {
 		//acceptanceRate = rate*100;
 		switch(who){
 			case "a":
-				if((double)acceptances/(double)Verhandlung.MAXSTAGNATION > 0.3){
-					acceptanceRateA-=0.05;
-					return acceptanceRateA;
+				if((double)acceptances/(double)Verhandlung.MAXSTAGNATION >= 0.3){
+					acceptanceRateA-=0.000005;
+					return acceptanceRateA > 1.0001 ? acceptanceRateA : 1.0001;
 				}
 				 if(acceptances > acceptanceA) {
 					 //nothing, it's good like that
@@ -59,8 +59,8 @@ public class Mediator {
 				return acceptanceRateA;
 			case "b":
 				if((double)acceptances/(double)Verhandlung.MAXSTAGNATION >= 0.3){
-					acceptanceRateB-=0.05;
-					return acceptanceRateB;
+					acceptanceRateB-=0.000005;
+					return acceptanceRateB > 1.0001 ? acceptanceRateB : 1.0001;
 				}
 				if(acceptances > acceptanceB) {
 					//nothing, it's good like that

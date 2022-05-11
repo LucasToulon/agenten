@@ -27,10 +27,11 @@ import java.util.List;
 
 public class Verhandlung {	
 
-	final static int MAXROUNDS = 1600000;
-	final static int MAXSTAGNATION = 5000;
+	final static int MAXROUNDS = 20000000;
+	final static int MAXSTAGNATION = 400;
 		public static void main(String[] args) {
 			int[] contract, proposal;
+			List<int[]> validProposals = new ArrayList<int[]>();
 			Agent agA, agB, agC, agD, agE;
 			Mediator med;
 			boolean voteA, voteB, voteC, voteD, voteE;
@@ -60,9 +61,11 @@ public class Verhandlung {
 					voteB    = agB.voteWithAcceptance(contract, proposal, acceptanceRateB);
 					if((voteA && voteB)) {
 						contract = proposal;
-						ausgabe(agA, agB, round, contract);
+						ausgabe(agA, agB, round, contract, acceptanceRateA, acceptanceRateB);
 						a=0;
 						b=0;
+						stagnation = 0;
+						validProposals.add(contract);
 					}else{
 						stagnation++;
 					}
@@ -76,6 +79,15 @@ public class Verhandlung {
 						b= 0;
 					}
 				}
+				for(int[] validProposal: validProposals){
+					voteA    = agA.vote(contract, validProposal);
+					voteB    = agB.vote(contract, validProposal);
+					if((voteA && voteB)) {
+						contract = validProposal;
+					}
+				}
+				ausgabeResult(agA, agB, contract);
+				System.out.println("AcceptanceRate A: " + acceptanceRateA + ", B: " + acceptanceRateB);
 			}
 			catch(FileNotFoundException e){
 				System.out.println(e.getMessage());
@@ -84,26 +96,36 @@ public class Verhandlung {
 
 
 
-	public static void ausgabe(Agent a1, Agent a2, int i, int[] contract){
-			System.out.print(i + " -> " );
-			a1.printUtility(contract);
-			System.out.print("  ");
-			a2.printUtility(contract);
-			System.out.println();
-		}
+	public static void ausgabe(Agent a1, Agent a2, int i, int[] contract, double acceptanceRateA, double acceptanceRateB){
+		System.out.print(i + " -> " );
+		a1.printUtility(contract);
+		System.out.print("  ");
+		a2.printUtility(contract);
+		System.out.print("  " + acceptanceRateA + "  " + acceptanceRateB);
+		System.out.println();
+
+	}
+
+	public static void ausgabeResult(Agent a1, Agent a2, int[] contract){
+		System.out.print("Final result -> " );
+		a1.printUtility(contract);
+		System.out.print("  ");
+		a2.printUtility(contract);
+		System.out.println();
+	}
 		
-		public static void ausgabe(Agent a1, Agent a2, Agent a3, Agent a4, Agent a5, int i, int[] contract){
-			System.out.print(i + " -> " );
-			a1.printUtility(contract);
-			System.out.print("  ");
-			a2.printUtility(contract);
-			System.out.print("  ");
-			a3.printUtility(contract);
-			System.out.print("  ");
-			a4.printUtility(contract);
-			System.out.print("  ");
-			a5.printUtility(contract);
-			System.out.println();
-		}
+	public static void ausgabe(Agent a1, Agent a2, Agent a3, Agent a4, Agent a5, int i, int[] contract){
+		System.out.print(i + " -> " );
+		a1.printUtility(contract);
+		System.out.print("  ");
+		a2.printUtility(contract);
+		System.out.print("  ");
+		a3.printUtility(contract);
+		System.out.print("  ");
+		a4.printUtility(contract);
+		System.out.print("  ");
+		a5.printUtility(contract);
+		System.out.println();
+	}
 
 }

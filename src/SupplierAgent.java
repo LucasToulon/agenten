@@ -30,6 +30,14 @@ public class SupplierAgent extends Agent {
 			return false;
 	}
 
+	public boolean vote(int[] contract, int[] proposal) {
+		int costContract = evaluate(contract);
+		int costProposal = evaluate(proposal);
+		if (costProposal < costContract)
+			return true;
+		else
+			return false;
+	}
 
 	public int getContractSize() {
 		return costMatrix.length;
